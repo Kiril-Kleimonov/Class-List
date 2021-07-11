@@ -3,12 +3,13 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A;
-    std::cout << A.length() << '\n';
-    A.add_end(32);
-    std::cout << A.length() << '\n';
-    A.add_begin(-34);
+    List<int> A(3, 5);
     std::cout << A.length() << '\n';
     A.DEBUGprint();
+    
+    List<int> B = A;
+    std::cout << B.length() << '\n';
+    B.DEBUGprint();
+
     return 0;
 }
