@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <iterator>
 #include <ostream>
 
 
@@ -18,6 +19,8 @@ template<typename T> struct Node
 template<typename T> class List
 {
 public:
+    explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
+
     explicit List(T initial_value, size_t amount_nodes)
     {
         length_ = amount_nodes;
@@ -55,22 +58,41 @@ public:
 
     void add_end(T new_value)
     {
-        Node<T> *new_node = new Node<T>;
-        new_node->value = new_value;
-        new_node->prev = end_ptr_;
-        end_ptr_->next = new_node;
-        end_ptr_ = new_node;
+        if (end_ptr_ != NULL)
+        {
+            Node<T> *new_node = new Node<T>;
+            new_node->value = new_value;
+            new_node->prev = end_ptr_;
+            end_ptr_->next = new_node;
+            end_ptr_ = new_node;
+        }
+        else
+        {
+            end_ptr_ = new Node<T>;
+            begin_ptr_ = end_ptr_;
+            end_ptr_->value = new_value;
+        }
 
         length_++;
     }
 
     void add_begin(T new_value)
     {
-        Node<T> *new_node = new Node<T>;
-        new_node->value = new_value;
-        new_node->next = begin_ptr_;
-        begin_ptr_->prev = new_node;
-        begin_ptr_ = new_node;
+        if (begin_ptr_ != NULL)
+        {
+            Node<T> *new_node = new Node<T>;
+            new_node->value = new_value;
+            new_node->next = begin_ptr_;
+            begin_ptr_->prev = new_node;
+            begin_ptr_ = new_node;
+        }
+        else
+        {
+            begin_ptr_ = new Node<T>;
+            end_ptr_ = begin_ptr_;
+
+            begin_ptr_->value = new_value;
+        }
 
         length_++;
     }
@@ -84,7 +106,7 @@ public:
     void DEBUGprint()
     {
         auto current_ptr = begin_ptr_;
-        while (current_ptr != 0) 
+        while (current_ptr != NULL) 
         {
             std::cout << current_ptr->value << ' ' << current_ptr << '\n';
             current_ptr = current_ptr->next;
