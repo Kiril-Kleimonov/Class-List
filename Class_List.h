@@ -17,47 +17,57 @@ template <typename Type> class List {
 public:
     explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
 
-    explicit List(Type initial_value, size_t amount_nodes) {
-      length_ = amount_nodes;
+    explicit List(Type initial_value, size_t amount_nodes) 
+    {
+        length_ = amount_nodes;
 
-      for (size_t i = 0; i < amount_nodes; ++i) {
-        if (!i) {
-          end_ptr_ = new Node<Type>;
-          begin_ptr_ = end_ptr_;
+        for (size_t i = 0; i < amount_nodes; ++i) 
+        {
+            if (!i) 
+            {
+                end_ptr_ = new Node<Type>;
+                begin_ptr_ = end_ptr_;
 
-          end_ptr_->value = initial_value;
-        } else {
-          end_ptr_->next = new Node<Type>;
-          end_ptr_->next->prev = end_ptr_;
-          end_ptr_ = end_ptr_->next;
+                end_ptr_->value = initial_value;
+            } 
+            else 
+            {
+                end_ptr_->next = new Node<Type>;
+                end_ptr_->next->prev = end_ptr_;
+                end_ptr_ = end_ptr_->next;
 
-          end_ptr_->value = initial_value;
+                end_ptr_->value = initial_value;
+            }
         }
-      }
     }
 
-    List(const List<Type> &other)
-        : begin_ptr_(0), end_ptr_(0), length_(other.length_) {
-      Node<Type> *current_ptr = other.begin_ptr_;
+    List(const List<Type> &right)
+        : begin_ptr_(0), end_ptr_(0), length_(right.length_) 
+    {
+        Node<Type> *current_ptr = right.begin_ptr_;
 
-      while (current_ptr != NULL) {
-        if (current_ptr == other.begin_ptr_) {
-          begin_ptr_ = new Node<Type>;
-          end_ptr_ = begin_ptr_;
+        while (current_ptr != NULL) 
+        {
+            if (current_ptr == right.begin_ptr_) 
+            {
+                begin_ptr_ = new Node<Type>;
+                end_ptr_ = begin_ptr_;
 
-          begin_ptr_->value = current_ptr->value;
+                begin_ptr_->value = current_ptr->value;
 
-          current_ptr = current_ptr->next;
-        } else {
-          end_ptr_->next = new Node<Type>;
-          end_ptr_->next->prev = end_ptr_;
-          end_ptr_ = end_ptr_->next;
+                current_ptr = current_ptr->next;
+            } 
+            else 
+            {
+                end_ptr_->next = new Node<Type>;
+                end_ptr_->next->prev = end_ptr_;
+                end_ptr_ = end_ptr_->next;
 
-          end_ptr_->value = current_ptr->value;
+                end_ptr_->value = current_ptr->value;
 
-          current_ptr = current_ptr->next;
+                current_ptr = current_ptr->next;
+            }
         }
-      }
     }
 
     ~List()
@@ -69,44 +79,122 @@ public:
         }
         delete begin_ptr_;
     }
+// тут всё плохо
+    List &operator=(List<Type> &right) 
+    {
+        if (this != &right) 
+        {
+            Node<Type> *curr_right_ptr = right.begin_ptr_;
+            Node<Type> *curr_left_ptr = begin_ptr_;
 
+            auto min = this->length() < right.length() ? this->length() : right.length();
+
+            for (size_t i = 0; i < min; i++)
+            {
+                curr_left_ptr->value = curr_right_ptr->value;
+
+                curr_left_ptr = curr_left_ptr->next;
+                curr_right_ptr = curr_right_ptr->next;
+            }
+
+            if (this->length() > right.length()) // free memory
+            {
+                auto remainder = this->length() - right.length();
+
+                end_ptr_ = curr_left_ptr->prev;
+                end_ptr_->next = 0;
+
+                for (size_t i = 0; i < remainder; ++i)
+                {
+                    auto temp = curr_left_ptr;
+                    curr_left_ptr = temp->next;
+                    delete temp;
+                }
+            }
+            else if (this->length() < right.length()) // allocate memory
+            {
+                if (this->length() == 0)
+                {
+                    this->length_ = 1;
+
+                    end_ptr_ = new Node<Type>;
+                    begin_ptr_ = end_ptr_;
+
+                    end_ptr_->value = curr_right_ptr->value;
+                    curr_right_ptr = curr_right_ptr->next;
+
+                }
+                
+                auto remainder = right.length() - this->length();
+
+                for (size_t i = 0; i < remainder; ++i)
+                {
+                    end_ptr_->next = new Node<Type>;
+
+                    end_ptr_->next->value = curr_right_ptr->value;
+                    curr_right_ptr = curr_right_ptr->next;
+
+                    end_ptr_->next->prev = end_ptr_;
+                    end_ptr_ = end_ptr_->next;
+                }
+            }
+            
+            length_ = right.length();
+        }
+
+        return *this;
+    }
 
     // List operator+ (List<T> &term)
     // {
 
     // }
 
-    void add_end(Type new_value) {
-      if (end_ptr_ != NULL) {
-        Node<Type> *new_node = new Node<Type>;
-        new_node->value = new_value;
-        new_node->prev = end_ptr_;
-        end_ptr_->next = new_node;
-        end_ptr_ = new_node;
-      } else {
-        end_ptr_ = new Node<Type>;
-        begin_ptr_ = end_ptr_;
-        end_ptr_->value = new_value;
-      }
 
-      length_++;
+    void add_end(Type new_value) 
+    {
+        if (end_ptr_ != NULL) 
+        {
+            Node<Type> *new_node = new Node<Type>;
+            new_node->value = new_value;
+            
+            new_node->prev = end_ptr_;
+            end_ptr_->next = new_node;
+            
+            end_ptr_ = new_node;
+        } 
+        else 
+        {
+            end_ptr_ = new Node<Type>;
+            begin_ptr_ = end_ptr_;
+
+            end_ptr_->value = new_value;
+        }
+
+        length_++;                                    
     }
 
-    void add_begin(Type new_value) {
-      if (begin_ptr_ != NULL) {
-        Node<Type> *new_node = new Node<Type>;
-        new_node->value = new_value;
-        new_node->next = begin_ptr_;
-        begin_ptr_->prev = new_node;
-        begin_ptr_ = new_node;
-      } else {
-        begin_ptr_ = new Node<Type>;
-        end_ptr_ = begin_ptr_;
+    void add_begin(Type new_value)
+    {
+        if (begin_ptr_ != NULL) 
+        {
+            Node<Type> *new_node = new Node<Type>;
+            new_node->value = new_value;
+            
+            new_node->next = begin_ptr_;
+            begin_ptr_->prev = new_node;
+            
+            begin_ptr_ = new_node;
+        } 
+        else
+        {
+            begin_ptr_ = new Node<Type>;
+            end_ptr_ = begin_ptr_;
 
-        begin_ptr_->value = new_value;
-      }
+            begin_ptr_->value = new_value;
+        }
 
-      length_++;
+        length_++;
     }
 
     // void add_by(T new_value, size_t index)
@@ -114,6 +202,8 @@ public:
 
     // }
 
+
+    bool empty() { return begin_ptr_ == NULL && end_ptr_ == NULL; }
 
     size_t length() { return length_; }
 
