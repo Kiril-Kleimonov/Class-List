@@ -3,11 +3,17 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A(3, 5);
+    List<int> A;
     std::cout << A.length() << '\n';
     A.DEBUGprint();
     
-    List<int> B = A;
+    List<int> B(6, 20);
+    std::cout << B.length() << '\n';
+    B.DEBUGprint();
+
+    A = B;
+    std::cout << A.length() << '\n';
+    A.DEBUGprint();
     std::cout << B.length() << '\n';
     B.DEBUGprint();
 
