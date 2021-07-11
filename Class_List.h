@@ -52,6 +52,35 @@ public:
         delete begin_ptr_;
     }
 
+
+    void add_end(T new_value)
+    {
+        Node<T> *new_node = new Node<T>;
+        new_node->value = new_value;
+        new_node->prev = end_ptr_;
+        end_ptr_->next = new_node;
+        end_ptr_ = new_node;
+
+        length_++;
+    }
+
+    void add_begin(T new_value)
+    {
+        Node<T> *new_node = new Node<T>;
+        new_node->value = new_value;
+        new_node->next = begin_ptr_;
+        begin_ptr_->prev = new_node;
+        begin_ptr_ = new_node;
+
+        length_++;
+    }
+
+    // void add_by(T new_value, size_t index)
+    // {
+
+    // }
+
+
     void DEBUGprint()
     {
         auto current_ptr = begin_ptr_;
@@ -64,7 +93,8 @@ public:
         std::cout << std::endl;
     }
 
-    size_t length() { return length; }
+
+    size_t length() { return length_; }
 
 private:
     Node<T> *begin_ptr_;
