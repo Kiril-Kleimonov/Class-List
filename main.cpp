@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A(3, 3);
+    List<int> A;
     std::cout << A.length() << '\n';
     A.add_end(32);
     std::cout << A.length() << '\n';
