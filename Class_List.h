@@ -18,7 +18,7 @@ template <class Type> class List {
 public:
     explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
 
-    List(Type initial_value, size_t amount_nodes) 
+    explicit List(Type initial_value, size_t amount_nodes) 
     {
         length_ = amount_nodes;
 
