@@ -1,5 +1,6 @@
 #include "Class_List.h"
 #include <iostream>
+#include <string>
 
 int main(int argc, char const *argv[])
 {
