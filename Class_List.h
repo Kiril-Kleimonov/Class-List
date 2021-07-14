@@ -79,8 +79,8 @@ public:
         }
         delete begin_ptr_;
     }
-// тут всё плохо
-    List &operator=(List<Type> &right) 
+
+    List &operator=(List<Type> &right) // need rewrite this method
     {
         if (this != &right) 
         {
@@ -124,7 +124,7 @@ public:
                     curr_right_ptr = curr_right_ptr->next;
 
                 }
-                
+
                 auto remainder = right.length() - this->length();
 
                 for (size_t i = 0; i < remainder; ++i)
@@ -145,10 +145,18 @@ public:
         return *this;
     }
 
-    // List operator+ (List<T> &term)
-    // {
+    List &operator+(List<Type> &term)
+    {
+        List<Type> *A = new List<Type>(*this);
+        List<Type> *B = new List<Type>(term);
 
-    // }
+        A->end_ptr_->next = B->begin_ptr_;
+        B->begin_ptr_->prev = A->end_ptr_;
+
+        A->end_ptr_ = B->end_ptr_;
+        A->length_ += B->length_;
+        return *A;
+    }
 
 
     void add_end(Type new_value) 
