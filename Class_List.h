@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <iostream> // DEBUG
+#include <cassert>  // DEBUG
 
 
 template<typename T> struct Node
@@ -13,11 +14,11 @@ template<typename T> struct Node
     Node<T>* next = 0;
 };
 
-template <typename Type> class List {
+template <class Type> class List {
 public:
     explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
 
-    explicit List(Type initial_value, size_t amount_nodes) 
+    List(Type initial_value, size_t amount_nodes) 
     {
         length_ = amount_nodes;
 
@@ -41,7 +42,7 @@ public:
         }
     }
 
-    List(const List<Type> &right)
+    explicit List(const List<Type> &right)
         : begin_ptr_(0), end_ptr_(0), length_(right.length_) 
     {
         Node<Type> *current_ptr = right.begin_ptr_;
@@ -209,6 +210,64 @@ public:
     // {
 
     // }
+
+
+    Type pop_end()
+    {
+        Type return_value = NULL;
+
+        if (end_ptr_ != 0)
+        {
+            return_value = end_ptr_->value;
+
+            if (end_ptr_->prev != 0)
+            {
+                end_ptr_ = end_ptr_->prev;
+                delete end_ptr_->next;
+                end_ptr_->next = 0;
+            }
+            else
+            {
+                delete end_ptr_;
+                end_ptr_ = 0;
+                begin_ptr_ = 0;
+            }
+            --length_;
+
+            return return_value;
+        }
+
+        assert("What are you doing here?");
+        return return_value;
+    }
+
+    Type pop_begin()
+    {
+        Type return_value = NULL;
+
+        if (end_ptr_ != 0)
+        {
+            return_value = begin_ptr_->value;
+            
+            if (begin_ptr_->next != 0)
+            {
+                begin_ptr_ = begin_ptr_->next;
+                delete begin_ptr_->prev;
+                begin_ptr_->prev = 0;
+            }
+            else
+            {
+                delete begin_ptr_;
+                end_ptr_ = 0;
+                begin_ptr_ = 0;
+            }
+
+            return return_value;
+        }
+
+        assert("What are you doing here?");
+        return return_value;
+    }
 
 
     bool empty() { return begin_ptr_ == NULL && end_ptr_ == NULL; }
