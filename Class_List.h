@@ -18,7 +18,31 @@ template <class Type> class List {
 public:
     explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
 
-    explicit List(Type initial_value, size_t amount_nodes) 
+    explicit List(const Type &initial_value, size_t amount_nodes) 
+    {
+        length_ = amount_nodes;
+
+        for (size_t i = 0; i < amount_nodes; ++i) 
+        {
+            if (!i) 
+            {
+                end_ptr_ = new Node<Type>;
+                begin_ptr_ = end_ptr_;
+
+                end_ptr_->value = initial_value;
+            } 
+            else 
+            {
+                end_ptr_->next = new Node<Type>;
+                end_ptr_->next->prev = end_ptr_;
+                end_ptr_ = end_ptr_->next;
+
+                end_ptr_->value = initial_value;
+            }
+        }
+    }
+
+    explicit List(Type &initial_value, size_t amount_nodes) 
     {
         length_ = amount_nodes;
 
@@ -214,58 +238,51 @@ public:
 
     Type pop_end()
     {
-        Type return_value = NULL;
+        if (end_ptr_ == 0) assert("What are you doing here?");
 
-        if (end_ptr_ != 0)
+        Type return_value;
+        return_value = end_ptr_->value;
+
+        if (end_ptr_->prev != 0)
         {
-            return_value = end_ptr_->value;
-
-            if (end_ptr_->prev != 0)
-            {
-                end_ptr_ = end_ptr_->prev;
-                delete end_ptr_->next;
-                end_ptr_->next = 0;
-            }
-            else
-            {
-                delete end_ptr_;
-                end_ptr_ = 0;
-                begin_ptr_ = 0;
-            }
-            --length_;
-
-            return return_value;
+            end_ptr_ = end_ptr_->prev;
+            delete end_ptr_->next;
+            end_ptr_->next = 0;
+        }
+        else
+        {
+            delete end_ptr_;
+            end_ptr_ = 0;
+            begin_ptr_ = 0;
         }
 
-        assert("What are you doing here?");
+        --length_;
+
         return return_value;
     }
 
     Type pop_begin()
     {
-        Type return_value = NULL;
-
-        if (end_ptr_ != 0)
+        if (end_ptr_ == 0) assert("What are you doing here?");
+        
+        Type return_value;
+        return_value = begin_ptr_->value;
+        
+        if (begin_ptr_->next != 0)
         {
-            return_value = begin_ptr_->value;
-            
-            if (begin_ptr_->next != 0)
-            {
-                begin_ptr_ = begin_ptr_->next;
-                delete begin_ptr_->prev;
-                begin_ptr_->prev = 0;
-            }
-            else
-            {
-                delete begin_ptr_;
-                end_ptr_ = 0;
-                begin_ptr_ = 0;
-            }
-
-            return return_value;
+            begin_ptr_ = begin_ptr_->next;
+            delete begin_ptr_->prev;
+            begin_ptr_->prev = 0;
+        }
+        else
+        {
+            delete begin_ptr_;
+            end_ptr_ = 0;
+            begin_ptr_ = 0;
         }
 
-        assert("What are you doing here?");
+        --length_;
+
         return return_value;
     }
 
@@ -273,6 +290,7 @@ public:
     bool empty() { return begin_ptr_ == NULL && end_ptr_ == NULL; }
 
     size_t length() { return length_; }
+
 
     void DEBUGprint()
     {
