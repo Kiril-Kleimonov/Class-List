@@ -18,31 +18,7 @@ template <class Type> class List {
 public:
     explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
 
-    explicit List(const Type &initial_value, size_t amount_nodes) 
-    {
-        length_ = amount_nodes;
-
-        for (size_t i = 0; i < amount_nodes; ++i) 
-        {
-            if (!i) 
-            {
-                end_ptr_ = new Node<Type>;
-                begin_ptr_ = end_ptr_;
-
-                end_ptr_->value = initial_value;
-            } 
-            else 
-            {
-                end_ptr_->next = new Node<Type>;
-                end_ptr_->next->prev = end_ptr_;
-                end_ptr_ = end_ptr_->next;
-
-                end_ptr_->value = initial_value;
-            }
-        }
-    }
-
-    explicit List(Type &initial_value, size_t amount_nodes) 
+    explicit List(const Type &initial_value, const size_t amount_nodes) 
     {
         length_ = amount_nodes;
 
@@ -105,7 +81,7 @@ public:
         delete begin_ptr_;
     }
 
-    List &operator=(List<Type> &right) // need rewrite this method
+    List& operator=(const List<Type> &right) // need rewrite this method
     {
         if (this != &right) 
         {
@@ -170,7 +146,7 @@ public:
         return *this;
     }
 
-    List &operator+(List<Type> &term)
+    List& operator+(List<Type> &term) const
     {
         List<Type> *A = new List<Type>(*this);
         List<Type> *B = new List<Type>(term);
@@ -183,6 +159,10 @@ public:
         return *A;
     }
 
+    Type& operator[](const size_t index)
+    {
+
+    }
 
     void add_end(Type new_value) 
     {
@@ -287,9 +267,9 @@ public:
     }
 
 
-    bool empty() { return begin_ptr_ == NULL && end_ptr_ == NULL; }
+    bool empty() const { return begin_ptr_ == NULL && end_ptr_ == NULL; }
 
-    size_t length() { return length_; }
+    size_t length() const { return length_; }
 
 
     void DEBUGprint()
