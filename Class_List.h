@@ -2,8 +2,9 @@
 #define CLASS_LIST_H_
 
 #include <cstddef>
+#include <stdexcept>
+#include <exception>
 #include <iostream> // DEBUG
-#include <cassert>  // DEBUG
 
 
 template<typename T> struct Node
@@ -161,7 +162,28 @@ public:
 
     Type& operator[](const size_t index)
     {
+        if (index >= length()) throw std::invalid_argument("index is invalid");
 
+        Node<Type> *search_ptr;
+        if (index < length() - index)
+        {
+            search_ptr = begin_ptr_;
+            for (size_t i = 0; i < index; ++i)
+            {
+                search_ptr = search_ptr->next;
+            }
+        }
+        else
+        {
+            search_ptr = end_ptr_;
+            for (size_t i = 1; i < length() - index; ++i)
+            {
+                search_ptr = search_ptr->prev;
+            }
+
+        }
+
+        return search_ptr->value;
     }
 
     void add_end(Type new_value) 
@@ -218,7 +240,7 @@ public:
 
     Type pop_end()
     {
-        if (end_ptr_ == 0) assert("What are you doing here?");
+        if (empty()) throw std::logic_error("List empty");
 
         Type return_value;
         return_value = end_ptr_->value;
@@ -243,7 +265,7 @@ public:
 
     Type pop_begin()
     {
-        if (end_ptr_ == 0) assert("What are you doing here?");
+        if (empty()) throw std::logic_error("List empty");
         
         Type return_value;
         return_value = begin_ptr_->value;
