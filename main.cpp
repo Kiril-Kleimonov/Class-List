@@ -5,17 +5,8 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A = {1, 4, 6}; A.DEBUGprint();
-    List<int> B {2, 0, 0};   B.DEBUGprint();
-
-    A = B;
-    A.DEBUGprint();
-
-    B.clear();
-    B.DEBUGprint();
-
-    B = {1, 3, 5};
-    B.DEBUGprint();    
+    List<int> A(4, 6); A.DEBUGprint();
+    A.add_by(6, 3); A.DEBUGprint();
 
 
     return 0;
