@@ -17,6 +17,19 @@ template<typename T> struct Node
 };
 
 template <class Type> class List {
+private:
+    Node<Type>* _get_node(size_t index)
+    {
+        auto search_ptr = _begin_ptr;
+
+        for (int i = 0; i < index; ++i)
+        {
+            search_ptr = search_ptr->next;
+        }
+
+        return search_ptr;
+    }
+
 public:
     explicit List(): _begin_ptr(0), _end_ptr(0), _length(0) { }
 
@@ -241,10 +254,18 @@ public:
         _length++;
     }
 
-    // void add_by(T new_value, size_t index)
-    // {
+    void add_by(Type new_value, size_t index)
+    {
+        Node<Type> *new_node = new Node<Type>;
 
-    // }
+        new_node->value = new_value;
+
+        new_node->next = _get_node(index);
+        new_node->prev = new_node->next->prev;
+
+        new_node->next->prev = new_node;
+        new_node->prev->next = new_node;
+    }
 
 
     Type pop_end()
