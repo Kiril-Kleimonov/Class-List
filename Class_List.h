@@ -2,6 +2,7 @@
 #define CLASS_LIST_H_
 
 #include <cstddef>
+#include <initializer_list>
 #include <stdexcept>
 #include <exception>
 #include <iostream> // DEBUG
@@ -17,77 +18,78 @@ template<typename T> struct Node
 
 template <class Type> class List {
 public:
-    explicit List(): begin_ptr_(0), end_ptr_(0), length_(0) { }
+    explicit List(): _begin_ptr(0), _end_ptr(0), _length(0) { }
 
     explicit List(const Type &initial_value, const size_t amount_nodes) 
     {
-        length_ = amount_nodes;
+        _length = amount_nodes;
 
         for (size_t i = 0; i < amount_nodes; ++i) 
         {
             if (!i) 
             {
-                end_ptr_ = new Node<Type>;
-                begin_ptr_ = end_ptr_;
+                _end_ptr = new Node<Type>;
+                _begin_ptr = _end_ptr;
 
-                end_ptr_->value = initial_value;
+                _end_ptr->value = initial_value;
             } 
             else 
             {
-                end_ptr_->next = new Node<Type>;
-                end_ptr_->next->prev = end_ptr_;
-                end_ptr_ = end_ptr_->next;
+                _end_ptr->next = new Node<Type>;
+                _end_ptr->next->prev = _end_ptr;
+                _end_ptr = _end_ptr->next;
 
-                end_ptr_->value = initial_value;
+                _end_ptr->value = initial_value;
             }
         }
     }
 
     explicit List(const List<Type> &right)
-        : begin_ptr_(0), end_ptr_(0), length_(right.length_) 
+        : _begin_ptr(0), _end_ptr(0), _length(right._length) 
     {
-        Node<Type> *current_ptr = right.begin_ptr_;
+        Node<Type> *current_ptr = right._begin_ptr;
 
         while (current_ptr != NULL) 
         {
-            if (current_ptr == right.begin_ptr_) 
+            if (current_ptr == right._begin_ptr) 
             {
-                begin_ptr_ = new Node<Type>;
-                end_ptr_ = begin_ptr_;
+                _begin_ptr = new Node<Type>;
+                _end_ptr = _begin_ptr;
 
-                begin_ptr_->value = current_ptr->value;
+                _begin_ptr->value = current_ptr->value;
 
                 current_ptr = current_ptr->next;
             } 
             else 
             {
-                end_ptr_->next = new Node<Type>;
-                end_ptr_->next->prev = end_ptr_;
-                end_ptr_ = end_ptr_->next;
+                _end_ptr->next = new Node<Type>;
+                _end_ptr->next->prev = _end_ptr;
+                _end_ptr = _end_ptr->next;
 
-                end_ptr_->value = current_ptr->value;
+                _end_ptr->value = current_ptr->value;
 
                 current_ptr = current_ptr->next;
             }
         }
     }
 
-    ~List()
+     List(const std::initializer_list<Type> initial_values)
+        : _begin_ptr(0), _end_ptr(0), _length(0) 
     {
-        while (end_ptr_ != begin_ptr_)
-        {
-            end_ptr_ = end_ptr_->prev;
-            delete end_ptr_->next;
-        }
-        delete begin_ptr_;
+        for (auto &el: initial_values) add_end(el);        
     }
 
-    List& operator=(const List<Type> &right) // need rewrite this method
+    ~List()
+    {
+        clear();
+    }
+
+    List& operator=(const List<Type> &right) // need rewrite this method (never)
     {
         if (this != &right) 
         {
-            Node<Type> *curr_right_ptr = right.begin_ptr_;
-            Node<Type> *curr_left_ptr = begin_ptr_;
+            Node<Type> *curr_right_ptr = right._begin_ptr;
+            Node<Type> *curr_left_ptr = _begin_ptr;
 
             auto min = this->length() < right.length() ? this->length() : right.length();
 
@@ -103,8 +105,8 @@ public:
             {
                 auto remainder = this->length() - right.length();
 
-                end_ptr_ = curr_left_ptr->prev;
-                end_ptr_->next = 0;
+                _end_ptr = curr_left_ptr->prev;
+                _end_ptr->next = 0;
 
                 for (size_t i = 0; i < remainder; ++i)
                 {
@@ -117,12 +119,12 @@ public:
             {
                 if (this->length() == 0)
                 {
-                    this->length_ = 1;
+                    this->_length = 1;
 
-                    end_ptr_ = new Node<Type>;
-                    begin_ptr_ = end_ptr_;
+                    _end_ptr = new Node<Type>;
+                    _begin_ptr = _end_ptr;
 
-                    end_ptr_->value = curr_right_ptr->value;
+                    _end_ptr->value = curr_right_ptr->value;
                     curr_right_ptr = curr_right_ptr->next;
 
                 }
@@ -131,20 +133,27 @@ public:
 
                 for (size_t i = 0; i < remainder; ++i)
                 {
-                    end_ptr_->next = new Node<Type>;
+                    _end_ptr->next = new Node<Type>;
 
-                    end_ptr_->next->value = curr_right_ptr->value;
+                    _end_ptr->next->value = curr_right_ptr->value;
                     curr_right_ptr = curr_right_ptr->next;
 
-                    end_ptr_->next->prev = end_ptr_;
-                    end_ptr_ = end_ptr_->next;
+                    _end_ptr->next->prev = _end_ptr;
+                    _end_ptr = _end_ptr->next;
                 }
             }
             
-            length_ = right.length();
+            _length = right.length();
         }
 
         return *this;
+    }
+
+    void operator=(const std::initializer_list<Type> &initial_values)
+    {
+        List<Type> temp = initial_values;
+
+        *this = temp;
     }
 
     List& operator+(List<Type> &term) const
@@ -152,11 +161,11 @@ public:
         List<Type> *A = new List<Type>(*this);
         List<Type> *B = new List<Type>(term);
 
-        A->end_ptr_->next = B->begin_ptr_;
-        B->begin_ptr_->prev = A->end_ptr_;
+        A->_end_ptr->next = B->_begin_ptr;
+        B->_begin_ptr->prev = A->_end_ptr;
 
-        A->end_ptr_ = B->end_ptr_;
-        A->length_ += B->length_;
+        A->_end_ptr = B->_end_ptr;
+        A->_length += B->_length;
         return *A;
     }
 
@@ -167,7 +176,7 @@ public:
         Node<Type> *search_ptr;
         if (index < length() - index)
         {
-            search_ptr = begin_ptr_;
+            search_ptr = _begin_ptr;
             for (size_t i = 0; i < index; ++i)
             {
                 search_ptr = search_ptr->next;
@@ -175,7 +184,7 @@ public:
         }
         else
         {
-            search_ptr = end_ptr_;
+            search_ptr = _end_ptr;
             for (size_t i = 1; i < length() - index; ++i)
             {
                 search_ptr = search_ptr->prev;
@@ -188,48 +197,48 @@ public:
 
     void add_end(Type new_value) 
     {
-        if (end_ptr_ != NULL) 
+        if (_end_ptr != NULL) 
         {
             Node<Type> *new_node = new Node<Type>;
             new_node->value = new_value;
             
-            new_node->prev = end_ptr_;
-            end_ptr_->next = new_node;
+            new_node->prev = _end_ptr;
+            _end_ptr->next = new_node;
             
-            end_ptr_ = new_node;
+            _end_ptr = new_node;
         } 
         else 
         {
-            end_ptr_ = new Node<Type>;
-            begin_ptr_ = end_ptr_;
+            _end_ptr = new Node<Type>;
+            _begin_ptr = _end_ptr;
 
-            end_ptr_->value = new_value;
+            _end_ptr->value = new_value;
         }
 
-        length_++;                                    
+        _length++;                                    
     }
 
     void add_begin(Type new_value)
     {
-        if (begin_ptr_ != NULL) 
+        if (_begin_ptr != NULL) 
         {
             Node<Type> *new_node = new Node<Type>;
             new_node->value = new_value;
             
-            new_node->next = begin_ptr_;
-            begin_ptr_->prev = new_node;
+            new_node->next = _begin_ptr;
+            _begin_ptr->prev = new_node;
             
-            begin_ptr_ = new_node;
+            _begin_ptr = new_node;
         } 
         else
         {
-            begin_ptr_ = new Node<Type>;
-            end_ptr_ = begin_ptr_;
+            _begin_ptr = new Node<Type>;
+            _end_ptr = _begin_ptr;
 
-            begin_ptr_->value = new_value;
+            _begin_ptr->value = new_value;
         }
 
-        length_++;
+        _length++;
     }
 
     // void add_by(T new_value, size_t index)
@@ -243,22 +252,22 @@ public:
         if (empty()) throw std::logic_error("List empty");
 
         Type return_value;
-        return_value = end_ptr_->value;
+        return_value = _end_ptr->value;
 
-        if (end_ptr_->prev != 0)
+        if (_end_ptr->prev != 0)
         {
-            end_ptr_ = end_ptr_->prev;
-            delete end_ptr_->next;
-            end_ptr_->next = 0;
+            _end_ptr = _end_ptr->prev;
+            delete _end_ptr->next;
+            _end_ptr->next = 0;
         }
         else
         {
-            delete end_ptr_;
-            end_ptr_ = 0;
-            begin_ptr_ = 0;
+            delete _end_ptr;
+            _end_ptr = 0;
+            _begin_ptr = 0;
         }
 
-        --length_;
+        _length--;
 
         return return_value;
     }
@@ -268,35 +277,49 @@ public:
         if (empty()) throw std::logic_error("List empty");
         
         Type return_value;
-        return_value = begin_ptr_->value;
+        return_value = _begin_ptr->value;
         
-        if (begin_ptr_->next != 0)
+        if (_begin_ptr->next != 0)
         {
-            begin_ptr_ = begin_ptr_->next;
-            delete begin_ptr_->prev;
-            begin_ptr_->prev = 0;
+            _begin_ptr = _begin_ptr->next;
+            delete _begin_ptr->prev;
+            _begin_ptr->prev = 0;
         }
         else
         {
-            delete begin_ptr_;
-            end_ptr_ = 0;
-            begin_ptr_ = 0;
+            delete _begin_ptr;
+            _end_ptr = 0;
+            _begin_ptr = 0;
         }
 
-        --length_;
+        _length--;
 
         return return_value;
     }
 
 
-    bool empty() const { return begin_ptr_ == NULL && end_ptr_ == NULL; }
+    bool empty() const { return _begin_ptr == NULL && _end_ptr == NULL; }
 
-    size_t length() const { return length_; }
+    size_t length() const { return _length; }
+
+    void clear()
+    {
+        while (_end_ptr != _begin_ptr)
+        {
+            _end_ptr = _end_ptr->prev;
+            delete _end_ptr->next;
+        }
+        delete _begin_ptr;
+
+        _length = 0;
+        _begin_ptr = 0;
+        _end_ptr = 0;
+    }
 
 
     void DEBUGprint()
     {
-        auto current_ptr = begin_ptr_;
+        auto current_ptr = _begin_ptr;
         while (current_ptr != NULL) 
         {
             std::cout << current_ptr->value << ' ' << current_ptr << '\n';
@@ -307,10 +330,10 @@ public:
     }
 
 private:
-  Node<Type> *begin_ptr_;
-  Node<Type> *end_ptr_;
+  Node<Type> *_begin_ptr;
+  Node<Type> *_end_ptr;
 
-  size_t length_;
+  size_t _length;
 };
 
 #endif
