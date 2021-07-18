@@ -3,8 +3,10 @@
 
 #include <cstddef>
 #include <initializer_list>
+
 #include <stdexcept>
 #include <exception>
+
 #include <iostream> // DEBUG
 
 
@@ -18,11 +20,11 @@ template<typename T> struct Node
 
 template <class Type> class List {
 private:
-    Node<Type>* _get_node(size_t index)
+    Node<Type>* _get_node_ptr(size_t index)
     {
         auto search_ptr = _begin_ptr;
 
-        for (int i = 0; i < index; ++i)
+        for (size_t i = 0; i < index; ++i)
         {
             search_ptr = search_ptr->next;
         }
@@ -57,7 +59,7 @@ public:
         }
     }
 
-    explicit List(const List<Type> &right)
+    List(const List<Type> &right)
         : _begin_ptr(0), _end_ptr(0), _length(right._length) 
     {
         Node<Type> *current_ptr = right._begin_ptr;
@@ -86,7 +88,7 @@ public:
         }
     }
 
-     List(const std::initializer_list<Type> initial_values)
+    List(const std::initializer_list<Type> initial_values)
         : _begin_ptr(0), _end_ptr(0), _length(0) 
     {
         for (auto &el: initial_values) add_end(el);        
@@ -256,15 +258,54 @@ public:
 
     void add_by(Type new_value, size_t index)
     {
-        Node<Type> *new_node = new Node<Type>;
+        if (index == length()) add_end(new_value);
+        else 
+        {
+    
+            Node<Type> *new_node = new Node<Type>;
+    
+            new_node->value = new_value;
+    
+            new_node->next = _get_node_ptr(index);
+            new_node->prev = new_node->next->prev;
+    
+            new_node->next->prev = new_node;
+            new_node->prev->next = new_node;
+        }
+        _length++;
+    }
 
-        new_node->value = new_value;
+    void add_list(List<Type> new_nodes, size_t index)
+    {
+        if (!new_nodes.empty())
+        {
+            if (index == length())
+            {
+                _end_ptr->next = new_nodes._begin_ptr;
+                new_nodes._begin_ptr->prev = _end_ptr;
+                _end_ptr = new_nodes._end_ptr;
+            }
+            else if (index == 0) 
+            {
+                _begin_ptr->prev = new_nodes._end_ptr;
+                new_nodes._end_ptr->next = _begin_ptr;
+                _begin_ptr = new_nodes._begin_ptr;
+            }
+            else
+            {
+                auto *place_incert = _get_node_ptr(index);
 
-        new_node->next = _get_node(index);
-        new_node->prev = new_node->next->prev;
+                place_incert->prev->next = new_nodes._begin_ptr;
+                new_nodes._begin_ptr->prev = place_incert->prev;
+                
+                place_incert->prev = new_nodes._end_ptr;
+                new_nodes._end_ptr->next = place_incert;
+            }
+        }
 
-        new_node->next->prev = new_node;
-        new_node->prev->next = new_node;
+        _length += new_nodes.length();
+        new_nodes._begin_ptr = 0;
+        new_nodes._end_ptr = 0;
     }
 
 
