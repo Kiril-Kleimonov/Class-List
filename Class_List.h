@@ -379,6 +379,60 @@ public:
         return value; 
     }
 
+    List<Type> pop_slice(size_t size, size_t index)
+    {
+        if (empty()) throw std::logic_error("List empty");
+        if (index < 0 || index >= length()) throw std::logic_error("Index out of range");
+        if (size <= 0 || size + index > length()) throw std::logic_error("Invalid 'size'");
+
+        List<Type> slice;
+
+        if (size == length())
+        {
+            slice = *this;
+            clear();
+        }
+        else if (index == 0)
+        {
+            slice._length = size;
+            slice._begin_ptr = _begin_ptr;
+            slice._end_ptr = _get_node_ptr(index + size - 1);
+
+            slice._end_ptr->next->prev = slice._begin_ptr->prev;
+            _length -= size;
+
+            _begin_ptr = slice._end_ptr->next;  
+            slice._end_ptr->next = NULL;
+        }
+        else if (index + size == length())
+        {
+            slice._length = size;
+            slice._begin_ptr = _get_node_ptr(index);
+            slice._end_ptr = _end_ptr;
+
+            slice._begin_ptr->prev->next = slice._end_ptr->next;
+            _length -= size;
+
+            _end_ptr = slice._begin_ptr->prev;  
+            slice._begin_ptr->prev = NULL; 
+        }
+        else
+        {
+            slice._length = size;
+            slice._begin_ptr = _get_node_ptr(index);
+            slice._end_ptr = _get_node_ptr(index + size - 1);
+
+            slice._begin_ptr->prev->next = slice._end_ptr->next;
+            slice._end_ptr->next->prev = slice._begin_ptr->prev;
+            _length -= size;
+
+            slice._begin_ptr->prev = NULL;
+            slice._end_ptr->next = NULL;  
+        }
+
+        return slice;
+    }
+
 
     bool empty() const { return _begin_ptr == NULL && _end_ptr == NULL; }
 
