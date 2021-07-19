@@ -452,6 +452,22 @@ public:
         _end_ptr = 0;
     }
 
+    void reverse()
+    {
+        Node<Type> *new_begin_ptr = 0;
+
+        while (_begin_ptr != 0)
+        {
+            Node<Type> *current_ptr = _begin_ptr->next;
+            _begin_ptr->next = new_begin_ptr;
+            
+            new_begin_ptr = _begin_ptr;
+            _begin_ptr = current_ptr;
+        }
+
+        _begin_ptr = new_begin_ptr;
+    }
+
 
     void DEBUGprint()
     {
