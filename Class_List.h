@@ -359,6 +359,26 @@ public:
         return return_value;
     }
 
+    Type pop_by(size_t index)
+    {
+        if (empty()) throw std::logic_error("List empty");
+        if (index < 0 || index >= length()) throw std::logic_error("Index out of range");
+
+        if (index == 0) return pop_begin();
+        if (index == length() - 1) return pop_end();
+        
+        auto pop_up_node = _get_node_ptr(index);
+
+        Type value = pop_up_node->value;
+        _length--;
+
+        pop_up_node->prev->next = pop_up_node->next;
+        pop_up_node->next->prev = pop_up_node->prev;
+
+        delete pop_up_node;
+        return value; 
+    }
+
 
     bool empty() const { return _begin_ptr == NULL && _end_ptr == NULL; }
 
