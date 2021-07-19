@@ -5,11 +5,11 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A(4, 6);          A.DEBUGprint();
-    List<int> B(8, 6);          B.DEBUGprint();
+    List<int> A {0, 1, 2, 3, 4, 5, 6};    A.DEBUGprint();
 
-    A.add_list(B, 6);           A.DEBUGprint();
-
+    A.pop_by(4);                          A.DEBUGprint();
+    A.pop_by(0);                          A.DEBUGprint();
+    A.pop_by(4);                          A.DEBUGprint();
 
     return 0;
 }
