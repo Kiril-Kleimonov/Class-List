@@ -5,11 +5,12 @@
 
 int main(int argc, char const *argv[])
 {
-    List<int> A {0, 1, 2, 3, 4, 5, 6};    A.DEBUGprint();
+    List<int> A {0, 1, 2, 3, 4, 5, 6};
+    A.DEBUGprint(); std::cout << A.length() << '\n';
 
-    A.pop_by(4);                          A.DEBUGprint();
-    A.pop_by(0);                          A.DEBUGprint();
-    A.pop_by(4);                          A.DEBUGprint();
+    List<int> B = A.pop_slice(3, 3);
+    A.DEBUGprint(); std::cout << A.length() << '\n';
+    B.DEBUGprint(); std::cout << B.length() << '\n';
 
     return 0;
 }
