@@ -468,6 +468,18 @@ public:
         _begin_ptr = new_begin_ptr;
     }
 
+    List<Type>& map(Type(*mutator)(Type)) const
+    {
+        List<Type> *result = new List<Type>;
+
+        for (Node<Type>* i = _begin_ptr; i != NULL; i = i->next)
+        {
+            result->add_end(mutator(i->value));
+        }
+
+        return *result;
+    }
+
 
     void DEBUGprint()
     {
@@ -477,7 +489,6 @@ public:
             std::cout << current_ptr->value << ' ' << current_ptr << '\n';
             current_ptr = current_ptr->next;
         }
-
         std::cout << std::endl;
     }
 
